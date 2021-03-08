@@ -1,5 +1,9 @@
 from django.shortcuts import render
 from projects.models import Project
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from . serializers import ProjectSerializer
+
 
 # Create your views here.
 
@@ -18,3 +22,10 @@ def project_detail(request, pk):
         'project': project
     }
     return render(request, 'project_detail.html', context)
+
+
+class ProjectList(APIView):
+    def get(self, request):
+        projects = Project.objects.all()
+        serializer = ProjectSerializer(projects, many=True)
+        return Response(serializer.data)
