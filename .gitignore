@@ -138,15 +138,8 @@ dmypy.json
 cython_debug/
 
 # my addition to ignore
-    *.log
-
-    *.pot
-
-    *.pyc
-
-    */*/*/__pycache__/
-
-    */*/__pycache__/
-
-    */__pycache__/
-
+*.pyc
+*/*/*/__pycache__/
+*/*/__pycache__/
+*/__pycache__/
+.vscode
