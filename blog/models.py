@@ -5,6 +5,8 @@ from django.db import models
 
 class Category(models.Model):
     name = models.CharField(max_length=20)
+    owner = models.ForeignKey(
+        "auth.user", related_name="categories", on_delete=models.CASCADE)
 
     def __str__(self):
         return str(self.name)
@@ -16,6 +18,8 @@ class Post(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
     categories = models.ManyToManyField('Category', related_name='posts')
+    owner = models.ForeignKey(
+        "auth.user", related_name="posts", on_delete=models.CASCADE)
 
     def __str__(self):
         return str(self.title)
@@ -26,6 +30,8 @@ class Comment(models.Model):
     body = models.TextField()
     created_on = models.DateTimeField(auto_now_add=True)
     post = models.ForeignKey('Post', on_delete=models.CASCADE)
+    owner = models.ForeignKey(
+        "auth.user", related_name="comments", on_delete=models.CASCADE)
 
     def __str__(self):
         return str(self.author)

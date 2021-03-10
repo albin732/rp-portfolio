@@ -11,6 +11,24 @@ from django.http import Http404
 from rest_framework import status
 from rest_framework.renderers import TemplateHTMLRenderer
 
+from django.contrib.auth.models import User
+from .serializers import UserSerializer
+from rest_framework import permissions
+from rest_framework import generics
+
+from blog.permissions import IsOwnerOrReadOnly
+
+
+class UserList(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+
+class UserDetail(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+
 """Pages: blog_index , blog_category, blog_details"""
 
 
@@ -43,6 +61,7 @@ def blog_detail(request, pk):
                 author=form.cleaned_data["author"],
                 body=form.cleaned_data["body"],
                 post=post,
+                owner_id="",
             )
             comment.save()
 
@@ -60,6 +79,8 @@ def blog_detail(request, pk):
 
 
 class CategoryList(APIView):
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
     def get(self, request):
         categories = Category.objects.all()
         serializer = CategorySerializer(categories, many=True)
@@ -74,6 +95,11 @@ class CategoryList(APIView):
 
 
 class PostList(APIView):
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
     def get(self, request):
         posts = Post.objects.all()
         serializer = PostSerializer(posts, many=True)
@@ -88,6 +114,8 @@ class PostList(APIView):
 
 
 class CommentList(APIView):
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
     def get(self, request):
         comments = Comment.objects.all()
         serializer = CommentSerializer(comments, many=True)
@@ -105,6 +133,8 @@ class CommentList(APIView):
 
 
 class CategoryDetail(APIView):
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
     def get(self,  *args, **kwargs):
         try:
             category = Category.objects.get(id=self.kwargs['id'])
@@ -134,6 +164,9 @@ class CategoryDetail(APIView):
 
 
 class PostDetail(APIView):
+    permission_classes = [
+        permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+
     def get(self, *args, **kwargs):
         try:
             post = Post.objects.get(pk=self.kwargs['id'])
@@ -163,6 +196,8 @@ class PostDetail(APIView):
 
 
 class CommentDetail(APIView):
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
     def get(self, *args, **kwargs):
         try:
             comment = Comment.objects.get(id=self.kwargs['id'])
