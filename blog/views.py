@@ -157,6 +157,7 @@ class PostDetail(APIView):
         try:
             post = Post.objects.get(pk=self.kwargs['id'])
             post.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
         except Post.DoesNotExist:
             raise Http404
 
